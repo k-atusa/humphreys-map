@@ -16,15 +16,7 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>🗺️ Humphreys Map</h1>
-        <div className="status-bar">
-          <span className="status-online">● 온라인</span>
-        </div>
-      </header>
-      <main className="app-main">
-        <MapView mapboxToken={mapboxToken} />
-      </main>
+      <MapView mapboxToken={mapboxToken} />
     </div>
   );
 }

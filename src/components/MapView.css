@@ -4,6 +4,12 @@
   position: relative;
 }
 
+/* 네비게이션 컨트롤을 검색창 아래로 이동 */
+.map-container .mapboxgl-ctrl-top-right {
+  top: 70px !important;
+  right: 5px !important;
+}
+
 .user-marker {
   font-size: 32px;
   cursor: pointer;

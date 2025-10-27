@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import Map, { Marker, NavigationControl, GeolocateControl } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapView.css';
+import SearchBar from './SearchBar';
+import SideMenu from './SideMenu';
 
 interface MapViewProps {
   mapboxToken?: string;
@@ -17,6 +19,20 @@ const INITIAL_VIEW_STATE = {
 export default function MapView({ mapboxToken }: MapViewProps) {
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
   const [userLocation, setUserLocation] = useState<{ lng: number; lat: number } | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleSearch = (query: string) => {
+    console.log('검색어:', query);
+    // TODO: 검색 기능 구현
+  };
+
+  const handleMenuToggle = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleMenuClose = () => {
+    setIsMenuOpen(false);
+  };
 
   useEffect(() => {
     // 사용자 위치 가져오기 (선택적)
@@ -67,6 +83,8 @@ export default function MapView({ mapboxToken }: MapViewProps) {
 
   return (
     <div className="map-container">
+      <SideMenu isOpen={isMenuOpen} onClose={handleMenuClose} />
+      <SearchBar onSearch={handleSearch} onMenuClick={handleMenuToggle} />
       <Map
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
