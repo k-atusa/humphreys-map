@@ -4,6 +4,8 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapView.css';
 import SearchBar from './SearchBar';
 import SideMenu from './SideMenu';
+import SearchResults, { SearchResult } from './SearchResults';
+import { searchPlaces } from '../services/searchService';
 
 interface MapViewProps {
   mapboxToken?: string;
@@ -20,10 +22,34 @@ export default function MapView({ mapboxToken }: MapViewProps) {
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
   const [userLocation, setUserLocation] = useState<{ lng: number; lat: number } | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearchResultsOpen, setIsSearchResultsOpen] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState<SearchResult | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     console.log('검색어:', query);
-    // TODO: 검색 기능 구현
+    
+    if (!query.trim()) {
+      setSearchResults([]);
+      setIsSearchResultsOpen(false);
+      return;
+    }
+
+    setIsSearching(true);
+    
+    try {
+      // 실제 API 호출
+      const results = await searchPlaces(query);
+      setSearchResults(results);
+      setIsSearchResultsOpen(true);
+    } catch (error) {
+      console.error('검색 오류:', error);
+      setSearchResults([]);
+      setIsSearchResultsOpen(true);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleMenuToggle = () => {
@@ -32,6 +58,20 @@ export default function MapView({ mapboxToken }: MapViewProps) {
 
   const handleMenuClose = () => {
     setIsMenuOpen(false);
+  };
+
+  const handleSearchResultsClose = () => {
+    setIsSearchResultsOpen(false);
+  };
+
+  const handleSelectResult = (result: SearchResult) => {
+    setSelectedMarker(result);
+    setViewState({
+      longitude: result.longitude,
+      latitude: result.latitude,
+      zoom: 17
+    });
+    setIsSearchResultsOpen(false);
   };
 
   useEffect(() => {
@@ -108,7 +148,67 @@ export default function MapView({ mapboxToken }: MapViewProps) {
             <div className="user-marker">📍</div>
           </Marker>
         )}
+        
+        {/* 검색 결과 마커 */}
+        {searchResults.map((result) => (
+          <Marker
+            key={result.id}
+            longitude={result.longitude}
+            latitude={result.latitude}
+            anchor="bottom"
+            onClick={(e) => {
+              e.originalEvent.stopPropagation();
+              handleSelectResult(result);
+            }}
+          >
+            <div className="search-marker" title={result.name}>
+              {getCategoryIcon(result.category)}
+            </div>
+          </Marker>
+        ))}
+        
+        {/* 선택된 마커 강조 */}
+        {selectedMarker && (
+          <Marker
+            longitude={selectedMarker.longitude}
+            latitude={selectedMarker.latitude}
+            anchor="bottom"
+          >
+            <div className="selected-marker">
+              {getCategoryIcon(selectedMarker.category)}
+            </div>
+          </Marker>
+        )}
       </Map>
+      
+      <SearchResults
+        results={searchResults}
+        isOpen={isSearchResultsOpen}
+        onClose={handleSearchResultsClose}
+        onSelectResult={handleSelectResult}
+      />
     </div>
   );
+}
+
+function getCategoryIcon(category: string): string {
+  const iconMap: { [key: string]: string } = {
+    '카페': '☕',
+    '음식점': '🍴',
+    '편의점': '🏪',
+    '병원': '🏥',
+    '약국': '💊',
+    '은행': '🏦',
+    '주유소': '⛽',
+    '주차장': '🅿️',
+    '학교': '🏫',
+    '관공서': '🏛️',
+    '숙박': '🏨',
+    '문화시설': '🎭',
+    '체육시설': '⚽',
+    '쇼핑': '🛍️',
+    'default': '📍'
+  };
+  
+  return iconMap[category] || iconMap['default'];
 }

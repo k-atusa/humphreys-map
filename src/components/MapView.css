@@ -6,14 +6,32 @@
 
 /* 네비게이션 컨트롤을 검색창 아래로 이동 */
 .map-container .mapboxgl-ctrl-top-right {
-  top: 70px !important;
-  right: 5px !important;
+  top: 80px !important;
+  right: 10px !important;
 }
 
 .user-marker {
   font-size: 32px;
   cursor: pointer;
   animation: pulse 2s infinite;
+}
+
+.search-marker {
+  font-size: 28px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.search-marker:hover {
+  transform: scale(1.2);
+}
+
+.selected-marker {
+  font-size: 36px;
+  cursor: pointer;
+  animation: bounce 0.5s ease;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
 }
 
 @keyframes pulse {
@@ -25,6 +43,15 @@
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }
 
