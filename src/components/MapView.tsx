@@ -76,11 +76,15 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
   const handleSelectResult = (result: SearchResult) => {
     setSelectedMarker(result);
     setShowBuildingInfo(true);
-    setViewState({
-      longitude: result.longitude,
-      latitude: result.latitude,
-      zoom: 17
+    
+    // 부드러운 이동 애니메이션
+    mapRef.current?.flyTo({
+      center: [result.longitude, result.latitude],
+      zoom: 17,
+      duration: 1500, // 1.5초
+      essential: true
     });
+    
     setIsSearchResultsOpen(false);
   };
 
@@ -197,10 +201,13 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
                 e.originalEvent.stopPropagation();
                 setSelectedMarker(result);
                 setShowBuildingInfo(true);
-                setViewState({
-                  longitude: result.longitude,
-                  latitude: result.latitude,
-                  zoom: 17
+                
+                // 부드러운 이동 애니메이션
+                mapRef.current?.flyTo({
+                  center: [result.longitude, result.latitude],
+                  zoom: 17,
+                  duration: 1500,
+                  essential: true
                 });
               }}
             >
