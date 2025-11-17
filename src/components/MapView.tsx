@@ -182,9 +182,9 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
         />
         
         {/* 검색 결과 마커 */}
-        {searchResults.map((result) => (
+        {searchResults.map((result, index) => (
           <Marker
-            key={result.id}
+            key={`marker-${result.id}-${index}`}
             longitude={result.longitude}
             latitude={result.latitude}
             anchor="bottom"
