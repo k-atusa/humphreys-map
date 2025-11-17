@@ -19,7 +19,7 @@ declare global {
 export async function authenticate(req: Request, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;
-    
+    console.log('Auth Header:', authHeader);
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ error: '인증 토큰이 필요합니다' });
     }
@@ -28,8 +28,10 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     
     // Decode base64 token
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const [id, timestampStr] = decoded.split(':');
-    const timestamp = parseInt(timestampStr, 10);
+    const payload = JSON.parse(decoded);
+    const { userId, timestamp } = payload;
+    
+    console.log('디코딩된 페이로드:', payload);
 
     // Check token expiry (24 hours)
     const now = Date.now();
@@ -43,7 +45,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     // Verify user exists in database
     const db = getDatabase();
     const accountCollection = db.collection('account');
-    const account = await accountCollection.findOne({ id });
+    const account = await accountCollection.findOne({ id: userId });
 
     if (!account) {
       return res.status(401).json({ error: '유효하지 않은 토큰입니다' });

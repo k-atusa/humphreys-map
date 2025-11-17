@@ -16,7 +16,7 @@ const CATEGORIES = [
   { value: 'education', label: '교육시설' },
   { value: 'sports', label: '체육시설' },
   { value: 'administrative', label: '행정시설' },
-  { value: 'residential', label: '거주시설' },
+  { value: 'barracks', label: '거주시설' },
   { value: 'entertainment', label: '엔터테인먼트' },
   { value: 'service', label: '서비스' },
   { value: 'transportation', label: '교통' },
@@ -31,7 +31,6 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
     buildingNumber: '',
     name: '',
     category: 'other',
-    buildingType: '',
     businessHours: '',
     contact: '',
     description: ''
@@ -52,8 +51,8 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
     setIsSubmitting(true);
 
     // 필수 필드 검증
-    if (!formData.name || !formData.buildingType) {
-      setError('장소 이름과 건물 형태는 필수 입력 항목입니다.');
+    if (!formData.name) {
+      setError('장소 이름은 필수 입력 항목입니다.');
       setIsSubmitting(false);
       return;
     }
@@ -63,7 +62,6 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
         buildingNumber: formData.buildingNumber || `AUTO-${Date.now()}`,
         name: formData.name,
         category: formData.category,
-        buildingType: formData.buildingType,
         businessHours: formData.businessHours || undefined,
         contact: formData.contact || undefined,
         address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
@@ -79,9 +77,15 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
       } else {
         setError('장소 추가에 실패했습니다.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('장소 추가 오류:', error);
-      setError('서버 오류가 발생했습니다.');
+      const errorMessage = error.message || '서버 오류가 발생했습니다.';
+      setError(errorMessage);
+      
+      // 인증 에러인 경우 추가 안내
+      if (errorMessage.includes('인증') || errorMessage.includes('권한')) {
+        alert('세션이 만료되었거나 권한이 없습니다. 다시 로그인해주세요.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -128,22 +132,6 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
               value={formData.name}
               onChange={handleChange}
               placeholder="예: Post Exchange (PX)"
-              required
-              disabled={isSubmitting}
-            />
-          </div>
-
-          <div className="form-row">
-            <label htmlFor="buildingType">
-              건물 형태 <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="buildingType"
-              name="buildingType"
-              value={formData.buildingType}
-              onChange={handleChange}
-              placeholder="예: 상업시설, 종합병원, 체육관"
               required
               disabled={isSubmitting}
             />

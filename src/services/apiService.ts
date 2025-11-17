@@ -4,7 +4,6 @@ export interface BuildingData {
   buildingNumber: string;
   name: string;
   category: string;
-  buildingType: string;
   businessHours?: string;
   contact?: string;
   address?: string;
@@ -122,23 +121,38 @@ export async function getNearbyBuildings(
  */
 export async function addBuilding(building: BuildingData): Promise<string | null> {
   try {
+    const token = localStorage.getItem('auth_token');
+    console.log('🔑 저장된 토큰:', token);
+    console.log('🔑 토큰 존재 여부:', !!token);
+    
+    if (!token) {
+      throw new Error('로그인이 필요합니다. 토큰이 없습니다.');
+    }
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    };
+    
+    console.log('📤 요청 헤더:', headers);
+    
     const response = await fetch(`${API_BASE_URL}/buildings`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(building),
     });
     
     if (!response.ok) {
-      throw new Error('장소 추가 실패');
+      const errorData = await response.json();
+      console.error('API 에러 응답:', errorData);
+      throw new Error(errorData.error || `장소 추가 실패 (${response.status})`);
     }
     
     const data = await response.json();
     return data.id;
   } catch (error) {
     console.error('장소 추가 오류:', error);
-    return null;
+    throw error;
   }
 }
 
@@ -150,10 +164,12 @@ export async function updateBuilding(
   updates: Partial<BuildingData>
 ): Promise<boolean> {
   try {
+    const token = localStorage.getItem('auth_token');
     const response = await fetch(`${API_BASE_URL}/buildings/${buildingNumber}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : '',
       },
       body: JSON.stringify(updates),
     });
@@ -174,8 +190,12 @@ export async function updateBuilding(
  */
 export async function deleteBuilding(buildingNumber: string): Promise<boolean> {
   try {
+    const token = localStorage.getItem('auth_token');
     const response = await fetch(`${API_BASE_URL}/buildings/${buildingNumber}`, {
       method: 'DELETE',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
     });
     
     if (!response.ok) {
