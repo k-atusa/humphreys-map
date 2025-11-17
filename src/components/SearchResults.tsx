@@ -88,9 +88,9 @@ export default function SearchResults({ results, isOpen, onClose, onSelectResult
               <p>검색 결과가 없습니다</p>
             </div>
           ) : (
-            results.map((result) => (
+            results.map((result, index) => (
               <div 
-                key={result.id} 
+                key={`${result.id}-${index}`} 
                 className="result-item"
                 onClick={() => handleResultClick(result)}
               >
@@ -100,9 +100,6 @@ export default function SearchResults({ results, isOpen, onClose, onSelectResult
                   <div className="result-category">{result.category}</div>
                   <div className="result-address">{result.address}</div>
                 </div>
-                {result.distance && (
-                  <div className="result-distance">{result.distance}</div>
-                )}
               </div>
             ))
           )}

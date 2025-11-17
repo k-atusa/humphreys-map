@@ -42,15 +42,15 @@ export async function searchBuildings(req: Request, res: Response) {
       .find({
         $or: [
           { name: { $regex: query, $options: 'i' } },
-          { buildingType: { $regex: query, $options: 'i' } },
+          { buildingNumber: { $regex: query, $options: 'i' } },
+          { description: { $regex: query, $options: 'i' } },
           { category: { $regex: query, $options: 'i' } }
         ]
       })
       .toArray();
 
     const results = searchResults.map(doc => ({
-      id: doc.buildingNumber || doc._id.toString(),
-      buildingNumber: doc.buildingNumber || doc._id.toString(),
+      buildingNumber: doc.buildingNumber,
       name: doc.name,
       address: doc.address || '',
       category: doc.category,
@@ -79,8 +79,7 @@ export async function getAllBuildings(req: Request, res: Response) {
     const buildings = await collection.find({}).toArray();
 
     const results = buildings.map(doc => ({
-      id: doc.buildingNumber || doc._id.toString(),
-      buildingNumber: doc.buildingNumber || doc._id.toString(),
+      buildingNumber: doc.buildingNumber,
       name: doc.name,
       address: doc.address || '',
       category: doc.category,
@@ -115,8 +114,7 @@ export async function getBuildingByNumber(req: Request, res: Response) {
     }
 
     const result = {
-      id: doc.buildingNumber || doc._id.toString(),
-      buildingNumber: doc.buildingNumber || doc._id.toString(),
+      buildingNumber: doc.buildingNumber,
       name: doc.name,
       address: doc.address || '',
       category: doc.category,
@@ -147,8 +145,7 @@ export async function getBuildingsByCategory(req: Request, res: Response) {
     const buildings = await collection.find({ category }).toArray();
 
     const results = buildings.map(doc => ({
-      id: doc.buildingNumber || doc._id.toString(),
-      buildingNumber: doc.buildingNumber || doc._id.toString(),
+      buildingNumber: doc.buildingNumber,
       name: doc.name,
       address: doc.address || '',
       category: doc.category,
@@ -188,8 +185,7 @@ export async function getNearbyBuildings(req: Request, res: Response) {
       .map(doc => {
         const distance = calculateDistance(lat, lon, doc.latitude, doc.longitude);
         return {
-          id: doc.buildingNumber || doc._id.toString(),
-          buildingNumber: doc.buildingNumber || doc._id.toString(),
+          buildingNumber: doc.buildingNumber,
           name: doc.name,
           address: doc.address || '',
           category: doc.category,
