@@ -185,41 +185,34 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
         />
         
         {/* 검색 결과 마커 */}
-        {searchResults.map((result, index) => (
-          <Marker
-            key={`marker-${result.id}-${index}`}
-            longitude={result.longitude}
-            latitude={result.latitude}
-            anchor="bottom"
-            onClick={(e) => {
-              e.originalEvent.stopPropagation();
-              setSelectedMarker(result);
-              setShowBuildingInfo(true);
-              setViewState({
-                longitude: result.longitude,
-                latitude: result.latitude,
-                zoom: 17
-              });
-            }}
-          >
-            <div className="search-marker" title={result.name}>
-              {getCategoryIcon(result.category)}
-            </div>
-          </Marker>
-        ))}
-        
-        {/* 선택된 마커 강조 */}
-        {selectedMarker && (
-          <Marker
-            longitude={selectedMarker.longitude}
-            latitude={selectedMarker.latitude}
-            anchor="bottom"
-          >
-            <div className="selected-marker">
-              {getCategoryIcon(selectedMarker.category)}
-            </div>
-          </Marker>
-        )}
+        {searchResults.map((result, index) => {
+          const isSelected = selectedMarker?.id === result.id;
+          return (
+            <Marker
+              key={`marker-${result.id}-${index}`}
+              longitude={result.longitude}
+              latitude={result.latitude}
+              anchor="bottom"
+              onClick={(e) => {
+                e.originalEvent.stopPropagation();
+                setSelectedMarker(result);
+                setShowBuildingInfo(true);
+                setViewState({
+                  longitude: result.longitude,
+                  latitude: result.latitude,
+                  zoom: 17
+                });
+              }}
+            >
+              <div 
+                className={isSelected ? "selected-marker" : "search-marker"} 
+                title={result.name}
+              >
+                {getCategoryIcon(result.category)}
+              </div>
+            </Marker>
+          );
+        })}
       </Map>
 
       {showBuildingInfo && selectedMarker && (

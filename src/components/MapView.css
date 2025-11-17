@@ -15,10 +15,13 @@
   cursor: pointer;
   transition: transform 0.2s ease;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  position: relative;
+  z-index: 10;
 }
 
 .search-marker:hover {
   transform: scale(1.2);
+  z-index: 20;
 }
 
 .selected-marker {
@@ -26,6 +29,14 @@
   cursor: pointer;
   animation: bounce 0.5s ease;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+  position: relative;
+  z-index: 15;
+}
+
+/* Mapbox 기본 현재 위치 표시가 마커를 가리지 않도록 설정 */
+.mapboxgl-user-location-dot,
+.mapboxgl-user-location-accuracy-circle {
+  pointer-events: none !important;
 }
 
 @keyframes pulse {
