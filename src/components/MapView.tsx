@@ -1,14 +1,18 @@
-import { useState, useEffect } from 'react';
-import Map, { Marker, NavigationControl, GeolocateControl } from 'react-map-gl';
+import { useState, useEffect, useRef } from 'react';
+import Map, { Marker, NavigationControl, GeolocateControl, MapRef } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapView.css';
 import SearchBar from './SearchBar';
 import SideMenu from './SideMenu';
 import SearchResults, { SearchResult } from './SearchResults';
+import AddLocationPopup from './AddLocationPopup';
 import { searchPlaces } from '../services/searchService';
+import type { User } from '../services/authService';
+import type { MapContextMenuEvent, MapLongPressEvent } from '../types/mapEvents';
 
 interface MapViewProps {
   mapboxToken?: string;
+  user: User | null;
 }
 
 // Camp Humphreys (USAG Humphreys) 정확한 좌표 (경기도 평택시)
@@ -18,14 +22,18 @@ const INITIAL_VIEW_STATE = {
   zoom: 15
 };
 
-export default function MapView({ mapboxToken }: MapViewProps) {
+export default function MapView({ mapboxToken, user }: MapViewProps) {
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
   const [userLocation, setUserLocation] = useState<{ lng: number; lat: number } | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchResultsOpen, setIsSearchResultsOpen] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<SearchResult | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
+  const [showAddLocation, setShowAddLocation] = useState(false);
+  const [addLocationCoords, setAddLocationCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const mapRef = useRef<MapRef>(null);
+  const longPressTimer = useRef<number | null>(null);
+  const isAdmin = user?.id === 'admin';
 
   const handleSearch = async (query: string) => {
     console.log('검색어:', query);
@@ -36,7 +44,7 @@ export default function MapView({ mapboxToken }: MapViewProps) {
       return;
     }
 
-    setIsSearching(true);
+    // spinner/UX state can be added later if needed
     
     try {
       // 실제 API 호출
@@ -48,7 +56,7 @@ export default function MapView({ mapboxToken }: MapViewProps) {
       setSearchResults([]);
       setIsSearchResultsOpen(true);
     } finally {
-      setIsSearching(false);
+      // no-op for now
     }
   };
 
@@ -72,6 +80,54 @@ export default function MapView({ mapboxToken }: MapViewProps) {
       zoom: 17
     });
     setIsSearchResultsOpen(false);
+  };
+
+  // 마우스 오른쪽 클릭 핸들러 (관리자용)
+  const handleContextMenu = (e: MapContextMenuEvent) => {
+    if (!isAdmin) return;
+    
+    e.preventDefault();
+    const { lng, lat } = e.lngLat;
+    setAddLocationCoords({ lat, lng });
+    setShowAddLocation(true);
+  };
+
+  // 길게 누르기 시작 (모바일용)
+  const handleTouchStart = (e: MapLongPressEvent) => {
+    if (!isAdmin) return;
+    
+    longPressTimer.current = window.setTimeout(() => {
+      const map = mapRef.current?.getMap();
+      if (map && e.point) {
+        const lngLat = map.unproject(e.point);
+        setAddLocationCoords({ lat: lngLat.lat, lng: lngLat.lng });
+        setShowAddLocation(true);
+      }
+    }, 500); // 500ms 길게 누르기
+  };
+
+  // 길게 누르기 취소
+  const handleTouchEnd = () => {
+    if (longPressTimer.current) {
+      window.clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const handleAddLocationClose = () => {
+    setShowAddLocation(false);
+    setAddLocationCoords(null);
+  };
+
+  const handleAddLocationSuccess = async () => {
+    // 검색 결과 새로고침
+    if (searchResults.length > 0) {
+      const lastQuery = searchResults[0]?.name || '';
+      if (lastQuery) {
+        const results = await searchPlaces(lastQuery);
+        setSearchResults(results);
+      }
+    }
   };
 
   useEffect(() => {
@@ -123,14 +179,21 @@ export default function MapView({ mapboxToken }: MapViewProps) {
 
   return (
     <div className="map-container">
-      <SideMenu isOpen={isMenuOpen} onClose={handleMenuClose} />
+      <SideMenu isOpen={isMenuOpen} onClose={handleMenuClose} user={user} />
       <SearchBar onSearch={handleSearch} onMenuClick={handleMenuToggle} />
       <Map
+        ref={mapRef}
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
+        onContextMenu={handleContextMenu}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
         mapStyle={mapStyle as any}
         mapboxAccessToken={mapboxToken}
         style={{ width: '100%', height: '100%' }}
+        trackResize={true}
+        attributionControl={true}
       >
         <NavigationControl position="top-right" />
         <GeolocateControl
@@ -180,6 +243,15 @@ export default function MapView({ mapboxToken }: MapViewProps) {
           </Marker>
         )}
       </Map>
+
+      {showAddLocation && addLocationCoords && (
+        <AddLocationPopup
+          latitude={addLocationCoords.lat}
+          longitude={addLocationCoords.lng}
+          onClose={handleAddLocationClose}
+          onSuccess={handleAddLocationSuccess}
+        />
+      )}
       
       <SearchResults
         results={searchResults}

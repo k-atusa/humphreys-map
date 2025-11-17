@@ -1,12 +1,20 @@
 import { useEffect } from 'react';
+import { logout, type User } from '../services/authService';
 import './SideMenu.css';
 
 interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  user: User | null;
 }
 
-export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
+export default function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
+  const handleLogout = () => {
+    if (confirm('로그아웃 하시겠습니까?')) {
+      logout();
+      window.location.reload();
+    }
+  };
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -38,8 +46,8 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
               </svg>
             </div>
             <div className="user-info">
-              <div className="user-name">사용자</div>
-              <div className="user-email">user@example.com</div>
+              <div className="user-name">{user?.nickname || '사용자'}</div>
+              <div className="user-email">{user?.id || 'user@example.com'}</div>
             </div>
           </div>
           <button className="close-button" onClick={onClose} aria-label="닫기">
@@ -108,7 +116,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
               <span className="menu-icon">👤</span>
               <span className="menu-text">계정 관리</span>
             </div>
-            <div className="menu-item logout">
+            <div className="menu-item logout" onClick={handleLogout}>
               <span className="menu-icon">🚪</span>
               <span className="menu-text">로그아웃</span>
             </div>
