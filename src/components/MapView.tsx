@@ -206,9 +206,12 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
           <Marker
             longitude={userLocation.lng}
             latitude={userLocation.lat}
-            anchor="bottom"
+            anchor="center"
           >
-            <div className="user-marker">📍</div>
+            <div className="user-location-marker">
+              <div className="user-location-dot"></div>
+              <div className="user-location-circle"></div>
+            </div>
           </Marker>
         )}
         
