@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import Map, { Marker, NavigationControl, GeolocateControl, MapRef } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapView.css';
@@ -24,7 +24,6 @@ const INITIAL_VIEW_STATE = {
 
 export default function MapView({ mapboxToken, user }: MapViewProps) {
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
-  const [userLocation, setUserLocation] = useState<{ lng: number; lat: number } | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchResultsOpen, setIsSearchResultsOpen] = useState(false);
@@ -130,27 +129,7 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
     }
   };
 
-  useEffect(() => {
-    // 사용자 위치 가져오기 (선택적)
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { longitude, latitude } = position.coords;
-          setUserLocation({ lng: longitude, lat: latitude });
-          // 위치를 가져왔지만 지도는 Camp Humphreys에 유지
-          // 필요시 사용자 위치로 이동하려면 아래 주석을 해제하세요
-          // setViewState({
-          //   longitude,
-          //   latitude,
-          //   zoom: 16
-          // });
-        },
-        (error) => {
-          console.warn('위치 정보를 가져올 수 없습니다:', error);
-        }
-      );
-    }
-  }, []);
+
 
   // OpenStreetMap 타일 사용 (Mapbox 토큰 없이도 작동)
   const mapStyle = mapboxToken 
@@ -201,19 +180,6 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
           trackUserLocation
           showUserHeading
         />
-        
-        {userLocation && (
-          <Marker
-            longitude={userLocation.lng}
-            latitude={userLocation.lat}
-            anchor="center"
-          >
-            <div className="user-location-marker">
-              <div className="user-location-dot"></div>
-              <div className="user-location-circle"></div>
-            </div>
-          </Marker>
-        )}
         
         {/* 검색 결과 마커 */}
         {searchResults.map((result) => (
