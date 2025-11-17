@@ -3,9 +3,13 @@ import './SearchResults.css';
 
 export interface SearchResult {
   id: string;
+  buildingNumber?: string;
   name: string;
   address: string;
   category: string;
+  businessHours?: string;
+  contact?: string;
+  description?: string;
   distance?: string;
   latitude: number;
   longitude: number;

@@ -6,6 +6,7 @@ import SearchBar from './SearchBar';
 import SideMenu from './SideMenu';
 import SearchResults, { SearchResult } from './SearchResults';
 import AddLocationPopup from './AddLocationPopup';
+import BuildingInfoPopup from './BuildingInfoPopup';
 import { searchPlaces } from '../services/searchService';
 import type { User } from '../services/authService';
 import type { MapContextMenuEvent, MapLongPressEvent } from '../types/mapEvents';
@@ -28,6 +29,7 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchResultsOpen, setIsSearchResultsOpen] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<SearchResult | null>(null);
+  const [showBuildingInfo, setShowBuildingInfo] = useState(false);
   const [showAddLocation, setShowAddLocation] = useState(false);
   const [addLocationCoords, setAddLocationCoords] = useState<{ lat: number; lng: number } | null>(null);
   const mapRef = useRef<MapRef>(null);
@@ -73,6 +75,7 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
 
   const handleSelectResult = (result: SearchResult) => {
     setSelectedMarker(result);
+    setShowBuildingInfo(true);
     setViewState({
       longitude: result.longitude,
       latitude: result.latitude,
@@ -190,7 +193,13 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
             anchor="bottom"
             onClick={(e) => {
               e.originalEvent.stopPropagation();
-              handleSelectResult(result);
+              setSelectedMarker(result);
+              setShowBuildingInfo(true);
+              setViewState({
+                longitude: result.longitude,
+                latitude: result.latitude,
+                zoom: 17
+              });
             }}
           >
             <div className="search-marker" title={result.name}>
@@ -212,6 +221,13 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
           </Marker>
         )}
       </Map>
+
+      {showBuildingInfo && selectedMarker && (
+        <BuildingInfoPopup
+          building={selectedMarker}
+          onClose={() => setShowBuildingInfo(false)}
+        />
+      )}
 
       {showAddLocation && addLocationCoords && (
         <AddLocationPopup

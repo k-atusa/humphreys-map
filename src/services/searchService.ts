@@ -13,9 +13,13 @@ export async function searchPlaces(query: string): Promise<SearchResult[]> {
     
     const results: SearchResult[] = buildings.map((building, index) => ({
       id: building.id || building.buildingNumber || `building-${index}`,
+      buildingNumber: building.buildingNumber,
       name: building.name,
       address: building.address || '',
       category: building.category,
+      businessHours: building.businessHours,
+      contact: building.contact,
+      description: building.description,
       latitude: building.latitude,
       longitude: building.longitude
     }));
