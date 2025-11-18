@@ -6,7 +6,7 @@ interface CategoryFilterProps {
 }
 
 const CATEGORIES = [
-  { value: null, label: '전체', icon: '🏢' },
+  { value: 'all', label: '전체', icon: '🏢' },
   { value: 'food', label: '음식점', icon: '🍴' },
   { value: 'shopping', label: '쇼핑', icon: '🛍️' },
   { value: 'medical', label: '의료시설', icon: '🏥' },
@@ -18,14 +18,23 @@ const CATEGORIES = [
 ];
 
 export default function CategoryFilter({ selectedCategory, onSelectCategory }: CategoryFilterProps) {
+  const handleCategoryClick = (categoryValue: string | null) => {
+    // 이미 선택된 카테고리를 다시 클릭하면 선택 해제 (아무것도 선택되지 않은 상태로)
+    if (selectedCategory === categoryValue) {
+      onSelectCategory(undefined as any); // 선택 해제 신호
+    } else {
+      onSelectCategory(categoryValue);
+    }
+  };
+
   return (
     <div className="category-filter">
       <div className="category-scroll">
         {CATEGORIES.map((category) => (
           <button
-            key={category.value || 'all'}
+            key={category.value}
             className={`category-pill ${selectedCategory === category.value ? 'active' : ''}`}
-            onClick={() => onSelectCategory(category.value)}
+            onClick={() => handleCategoryClick(category.value)}
           >
             <span className="category-icon">{category.icon}</span>
             <span className="category-label">{category.label}</span>

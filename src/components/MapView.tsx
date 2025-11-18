@@ -37,6 +37,7 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
   const [addLocationCoords, setAddLocationCoords] = useState<{ lat: number; lng: number } | null>(null);
   const mapRef = useRef<MapRef>(null);
   const longPressTimer = useRef<number | null>(null);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const isAdmin = user?.id === 'admin';
 
   const handleSearch = async (query: string) => {
@@ -105,6 +106,11 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
   const handleTouchStart = (e: MapLongPressEvent) => {
     if (!isAdmin) return;
     
+    // 터치 시작 위치 기록
+    if (e.point) {
+      touchStartPos.current = { x: e.point.x, y: e.point.y };
+    }
+    
     longPressTimer.current = window.setTimeout(() => {
       const map = mapRef.current?.getMap();
       if (map && e.point) {
@@ -115,12 +121,32 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
     }, 500); // 500ms 길게 누르기
   };
 
+  // 터치 이동 감지 (지도 pan 중에는 타이머 취소)
+  const handleTouchMove = (e: MapLongPressEvent) => {
+    if (!isAdmin || !touchStartPos.current || !e.point) return;
+    
+    // 이동 거리 계산 (5px 이상 이동하면 pan으로 간주)
+    const dx = e.point.x - touchStartPos.current.x;
+    const dy = e.point.y - touchStartPos.current.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    if (distance > 5) {
+      // 지도 이동 중이므로 타이머 취소
+      if (longPressTimer.current) {
+        window.clearTimeout(longPressTimer.current);
+        longPressTimer.current = null;
+      }
+      touchStartPos.current = null;
+    }
+  };
+
   // 길게 누르기 취소
   const handleTouchEnd = () => {
     if (longPressTimer.current) {
       window.clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
     }
+    touchStartPos.current = null;
   };
 
   const handleAddLocationClose = () => {
@@ -139,16 +165,25 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
     }
   };
 
-  const handleCategorySelect = async (category: string | null) => {
+  const handleCategorySelect = async (category: string | null | undefined) => {
+    // undefined는 선택 해제 시그널
+    if (category === undefined) {
+      setSelectedCategory(null);
+      setSelectedMarker(null);
+      setSearchResults([]);
+      setIsSearchResultsOpen(false);
+      return;
+    }
+
     setSelectedCategory(category);
     setSelectedMarker(null);
     
     try {
-      let buildings;
-      if (category === null) {
+      let buildings: any[] = [];
+      if (category === 'all') {
         // 전체 건물 조회
         buildings = await getAllBuildings();
-      } else {
+      } else if (category) {
         // 카테고리별 조회
         buildings = await getBuildingsByCategory(category);
       }
@@ -214,6 +249,7 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
         onMove={evt => setViewState(evt.viewState)}
         onContextMenu={handleContextMenu}
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
         mapStyle={mapStyle as any}
