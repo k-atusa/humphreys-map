@@ -7,7 +7,9 @@ import SideMenu from './SideMenu';
 import SearchResults, { SearchResult } from './SearchResults';
 import AddLocationPopup from './AddLocationPopup';
 import BuildingInfoPopup from './BuildingInfoPopup';
+import CategoryFilter from './CategoryFilter';
 import { searchPlaces } from '../services/searchService';
+import { getAllBuildings, getBuildingsByCategory } from '../services/apiService';
 import type { User } from '../services/authService';
 import type { MapContextMenuEvent, MapLongPressEvent } from '../types/mapEvents';
 
@@ -29,6 +31,7 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchResultsOpen, setIsSearchResultsOpen] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<SearchResult | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showBuildingInfo, setShowBuildingInfo] = useState(false);
   const [showAddLocation, setShowAddLocation] = useState(false);
   const [addLocationCoords, setAddLocationCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -136,6 +139,40 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
     }
   };
 
+  const handleCategorySelect = async (category: string | null) => {
+    setSelectedCategory(category);
+    setSelectedMarker(null);
+    
+    try {
+      let buildings;
+      if (category === null) {
+        // 전체 건물 조회
+        buildings = await getAllBuildings();
+      } else {
+        // 카테고리별 조회
+        buildings = await getBuildingsByCategory(category);
+      }
+      
+      const results: SearchResult[] = buildings.map((building, index) => ({
+        id: building.id || building.buildingNumber || `building-${index}`,
+        buildingNumber: building.buildingNumber,
+        name: building.name,
+        address: building.address || '',
+        category: building.category,
+        businessHours: building.businessHours,
+        contact: building.contact,
+        description: building.description,
+        latitude: building.latitude,
+        longitude: building.longitude
+      }));
+      
+      setSearchResults(results);
+      setIsSearchResultsOpen(true);
+    } catch (error) {
+      console.error('Category filter error:', error);
+    }
+  };
+
 
 
   // OpenStreetMap 타일 사용 (Mapbox 토큰 없이도 작동)
@@ -167,6 +204,10 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
     <div className="map-container">
       <SideMenu isOpen={isMenuOpen} onClose={handleMenuClose} user={user} />
       <SearchBar onSearch={handleSearch} onMenuClick={handleMenuToggle} />
+      <CategoryFilter 
+        selectedCategory={selectedCategory} 
+        onSelectCategory={handleCategorySelect} 
+      />
       <Map
         ref={mapRef}
         {...viewState}

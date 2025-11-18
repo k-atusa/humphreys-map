@@ -4,9 +4,9 @@
   position: relative;
 }
 
-/* 네비게이션 컨트롤을 검색창 아래로 이동 */
+/* 네비게이션 컨트롤을 카테고리 필터 아래로 이동 */
 .map-container .mapboxgl-ctrl-top-right {
-  top: 80px !important;
+  top: 140px !important;
   right: 10px !important;
 }
 
