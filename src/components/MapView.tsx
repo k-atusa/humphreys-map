@@ -155,8 +155,11 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
   };
 
   const handleAddLocationSuccess = async () => {
-    // 검색 결과 새로고침
-    if (searchResults.length > 0) {
+    // 선택된 카테고리가 있으면 해당 카테고리의 결과를 다시 조회 (팝업 없이)
+    if (selectedCategory) {
+      await handleCategorySelect(selectedCategory, false);
+    } else if (searchResults.length > 0) {
+      // 검색 결과가 있으면 검색 결과 새로고침
       const lastQuery = searchResults[0]?.name || '';
       if (lastQuery) {
         const results = await searchPlaces(lastQuery);
@@ -165,7 +168,7 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
     }
   };
 
-  const handleCategorySelect = async (category: string | null | undefined) => {
+  const handleCategorySelect = async (category: string | null | undefined, showPopup: boolean = true) => {
     // undefined는 선택 해제 시그널
     if (category === undefined) {
       setSelectedCategory(null);
@@ -202,7 +205,7 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
       }));
       
       setSearchResults(results);
-      setIsSearchResultsOpen(true);
+      setIsSearchResultsOpen(showPopup);
     } catch (error) {
       console.error('Category filter error:', error);
     }
