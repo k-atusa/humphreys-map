@@ -1,9 +1,50 @@
-import { SearchResult } from './SearchResults';
+import { SearchResult, BusinessHours } from './SearchResults';
 import './BuildingInfoPopup.css';
 
 interface BuildingInfoPopupProps {
   building: SearchResult;
   onClose: () => void;
+}
+
+const WEEKDAY_LABELS: Record<string, string> = {
+  monday: '월요일',
+  tuesday: '화요일',
+  wednesday: '수요일',
+  thursday: '목요일',
+  friday: '금요일',
+  saturday: '토요일',
+  sunday: '일요일'
+};
+
+function formatBusinessHours(businessHours: BusinessHours | string | undefined) {
+  if (!businessHours) return null;
+  
+  // 레거시 문자열 형식
+  if (typeof businessHours === 'string') {
+    return <span className="info-value">{businessHours}</span>;
+  }
+  
+  // 새로운 객체 형식
+  const days = Object.entries(businessHours).filter(([_, slots]) => slots && slots.length > 0);
+  
+  if (days.length === 0) return null;
+  
+  return (
+    <div className="business-hours-display">
+      {days.map(([day, slots]) => (
+        <div key={day} className="hours-day">
+          <span className="day-name">{WEEKDAY_LABELS[day]}</span>
+          <div className="time-slots">
+            {slots!.map((slot: any, index: number) => (
+              <span key={index} className="time-slot-text">
+                {slot.open} - {slot.close}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function BuildingInfoPopup({ building, onClose }: BuildingInfoPopupProps) {
@@ -31,7 +72,7 @@ export default function BuildingInfoPopup({ building, onClose }: BuildingInfoPop
           {building.businessHours && (
             <div className="info-row">
               <span className="info-label">영업 시간</span>
-              <span className="info-value">{building.businessHours}</span>
+              {formatBusinessHours(building.businessHours)}
             </div>
           )}
 

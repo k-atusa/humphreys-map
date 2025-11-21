@@ -234,20 +234,137 @@
   }
 }
 
+/* 영업시간 섹션 */
+.form-section {
+  margin-bottom: 20px;
+}
+
+.section-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.business-hours-container {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fafafa;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.day-hours {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.day-hours:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.day-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+
+.btn-add-slot {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-add-slot:hover:not(:disabled) {
+  background: #5568d3;
+}
+
+.btn-add-slot:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.time-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.time-slot input[type="time"] {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.time-slot span {
+  color: #999;
+  font-size: 14px;
+}
+
+.btn-remove-slot {
+  background: #ff4444;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-remove-slot:hover:not(:disabled) {
+  background: #cc0000;
+}
+
+.btn-remove-slot:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* 스크롤바 스타일 */
-.add-location-popup::-webkit-scrollbar {
+.add-location-popup::-webkit-scrollbar,
+.business-hours-container::-webkit-scrollbar {
   width: 8px;
 }
 
-.add-location-popup::-webkit-scrollbar-track {
+.add-location-popup::-webkit-scrollbar-track,
+.business-hours-container::-webkit-scrollbar-track {
   background: #f1f1f1;
 }
 
-.add-location-popup::-webkit-scrollbar-thumb {
+.add-location-popup::-webkit-scrollbar-thumb,
+.business-hours-container::-webkit-scrollbar-thumb {
   background: #ccc;
   border-radius: 4px;
 }
 
-.add-location-popup::-webkit-scrollbar-thumb:hover {
+.add-location-popup::-webkit-scrollbar-thumb:hover,
+.business-hours-container::-webkit-scrollbar-thumb:hover {
   background: #999;
 }

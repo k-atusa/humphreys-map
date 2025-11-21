@@ -2,6 +2,21 @@ import { useState } from 'react';
 import { addBuilding } from '../services/apiService';
 import './AddLocationPopup.css';
 
+interface TimeSlot {
+  open: string;
+  close: string;
+}
+
+interface BusinessHours {
+  monday?: TimeSlot[];
+  tuesday?: TimeSlot[];
+  wednesday?: TimeSlot[];
+  thursday?: TimeSlot[];
+  friday?: TimeSlot[];
+  saturday?: TimeSlot[];
+  sunday?: TimeSlot[];
+}
+
 interface AddLocationPopupProps {
   latitude: number;
   longitude: number;
@@ -26,15 +41,25 @@ const CATEGORIES = [
   { value: 'other', label: '기타' }
 ];
 
+const WEEKDAYS = [
+  { key: 'monday', label: '월요일' },
+  { key: 'tuesday', label: '화요일' },
+  { key: 'wednesday', label: '수요일' },
+  { key: 'thursday', label: '목요일' },
+  { key: 'friday', label: '금요일' },
+  { key: 'saturday', label: '토요일' },
+  { key: 'sunday', label: '일요일' }
+] as const;
+
 export default function AddLocationPopup({ latitude, longitude, onClose, onSuccess }: AddLocationPopupProps) {
   const [formData, setFormData] = useState({
     buildingNumber: '',
     name: '',
     category: 'other',
-    businessHours: '',
     contact: '',
     description: ''
   });
+  const [businessHours, setBusinessHours] = useState<BusinessHours>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -43,6 +68,29 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const addTimeSlot = (day: keyof BusinessHours) => {
+    setBusinessHours(prev => ({
+      ...prev,
+      [day]: [...(prev[day] || []), { open: '09:00', close: '18:00' }]
+    }));
+  };
+
+  const removeTimeSlot = (day: keyof BusinessHours, index: number) => {
+    setBusinessHours(prev => ({
+      ...prev,
+      [day]: prev[day]?.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateTimeSlot = (day: keyof BusinessHours, index: number, field: 'open' | 'close', value: string) => {
+    setBusinessHours(prev => ({
+      ...prev,
+      [day]: prev[day]?.map((slot, i) => 
+        i === index ? { ...slot, [field]: value } : slot
+      )
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,12 +105,15 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
       return;
     }
 
+    // businessHours가 비어있지 않은지 확인
+    const hasBusinessHours = Object.values(businessHours).some(slots => slots && slots.length > 0);
+
     try {
       const result = await addBuilding({
         buildingNumber: formData.buildingNumber || `AUTO-${Date.now()}`,
         name: formData.name,
         category: formData.category,
-        businessHours: formData.businessHours || undefined,
+        businessHours: hasBusinessHours ? businessHours : undefined,
         contact: formData.contact || undefined,
         address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
         latitude,
@@ -152,20 +203,53 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
             </select>
           </div>
 
-          <div className="form-row">
-            <label htmlFor="businessHours">
+          <div className="form-section">
+            <label className="section-label">
               영업 시간
               <span className="optional">(선택사항)</span>
             </label>
-            <input
-              type="text"
-              id="businessHours"
-              name="businessHours"
-              value={formData.businessHours}
-              onChange={handleChange}
-              placeholder="예: 09:00 - 21:00"
-              disabled={isSubmitting}
-            />
+            <div className="business-hours-container">
+              {WEEKDAYS.map(({ key, label }) => (
+                <div key={key} className="day-hours">
+                  <div className="day-header">
+                    <span className="day-label">{label}</span>
+                    <button
+                      type="button"
+                      className="btn-add-slot"
+                      onClick={() => addTimeSlot(key)}
+                      disabled={isSubmitting}
+                    >
+                      + 시간 추가
+                    </button>
+                  </div>
+                  {businessHours[key]?.map((slot, index) => (
+                    <div key={index} className="time-slot">
+                      <input
+                        type="time"
+                        value={slot.open}
+                        onChange={(e) => updateTimeSlot(key, index, 'open', e.target.value)}
+                        disabled={isSubmitting}
+                      />
+                      <span>~</span>
+                      <input
+                        type="time"
+                        value={slot.close}
+                        onChange={(e) => updateTimeSlot(key, index, 'close', e.target.value)}
+                        disabled={isSubmitting}
+                      />
+                      <button
+                        type="button"
+                        className="btn-remove-slot"
+                        onClick={() => removeTimeSlot(key, index)}
+                        disabled={isSubmitting}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="form-row">

@@ -1,13 +1,28 @@
 import { useState } from 'react';
 import './SearchResults.css';
 
+export interface TimeSlot {
+  open: string;
+  close: string;
+}
+
+export interface BusinessHours {
+  monday?: TimeSlot[];
+  tuesday?: TimeSlot[];
+  wednesday?: TimeSlot[];
+  thursday?: TimeSlot[];
+  friday?: TimeSlot[];
+  saturday?: TimeSlot[];
+  sunday?: TimeSlot[];
+}
+
 export interface SearchResult {
   id: string;
   buildingNumber?: string;
   name: string;
   address: string;
   category: string;
-  businessHours?: string;
+  businessHours?: BusinessHours | string; // 새 구조 또는 레거시 문자열
   contact?: string;
   description?: string;
   distance?: string;
