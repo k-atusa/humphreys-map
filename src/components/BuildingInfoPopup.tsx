@@ -7,13 +7,13 @@ interface BuildingInfoPopupProps {
 }
 
 const WEEKDAY_LABELS: Record<string, string> = {
+  sunday: '일요일',
   monday: '월요일',
   tuesday: '화요일',
   wednesday: '수요일',
   thursday: '목요일',
   friday: '금요일',
-  saturday: '토요일',
-  sunday: '일요일'
+  saturday: '토요일'
 };
 
 function formatBusinessHours(businessHours: BusinessHours | string | undefined) {
@@ -24,8 +24,13 @@ function formatBusinessHours(businessHours: BusinessHours | string | undefined) 
     return <span className="info-value">{businessHours}</span>;
   }
   
-  // 새로운 객체 형식
-  const days = Object.entries(businessHours).filter(([_, slots]) => slots && slots.length > 0);
+  // 요일 순서 정의: 일,월,화,수,목,금,토
+  const dayOrder = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  
+  // 새로운 객체 형식 - 요일 순서대로 정렬
+  const days = dayOrder
+    .map(day => [day, businessHours[day as keyof BusinessHours]] as const)
+    .filter(([_, slots]) => slots && slots.length > 0);
   
   if (days.length === 0) return null;
   
