@@ -38,7 +38,7 @@ function formatBusinessHours(businessHours: BusinessHours | string | undefined) 
     <div className="business-hours-display">
       {days.map(([day, slots]) => (
         <div key={day} className="hours-day">
-          <span className="day-name">{WEEKDAY_LABELS[day]}</span>
+          <span className={`day-name day-${day}`}>{WEEKDAY_LABELS[day]}</span>
           <div className="time-slots">
             {slots!.map((slot: any, index: number) => (
               <span key={index} className="time-slot-text">

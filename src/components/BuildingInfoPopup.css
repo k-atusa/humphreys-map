@@ -143,9 +143,17 @@
 
 .day-name {
   font-weight: 600;
-  color: #667eea;
+  color: #666;
   min-width: 60px;
   font-size: 13px;
+}
+
+.day-name.day-sunday {
+  color: #d94040;
+}
+
+.day-name.day-saturday {
+  color: #4080d9;
 }
 
 .time-slots {
