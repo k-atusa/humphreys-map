@@ -64,9 +64,20 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
   const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+    if (name === 'buildingNumber') {
+      setFormData({
+        ...formData,
+        buildingNumber: value,
+        name: value
+      });
+      return;
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
   };
 
@@ -122,7 +133,6 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
       });
 
       if (result) {
-        alert('장소가 성공적으로 추가되었습니다!');
         onSuccess();
         onClose();
       } else {
