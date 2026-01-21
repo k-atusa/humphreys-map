@@ -6,11 +6,10 @@ import './App.css';
 
 function App() {
   const mapboxToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isLoginClosing, setIsLoginClosing] = useState(false);
 
   useEffect(() => {
     // PWA 서비스 워커 등록 확인
@@ -29,10 +28,8 @@ function App() {
     const result = await validateToken();
     
     if (result.success && result.user) {
-      setIsAuthenticated(true);
       setUser(result.user);
     } else {
-      setIsAuthenticated(false);
       setUser(null);
     }
     
@@ -42,16 +39,21 @@ function App() {
   const handleLoginSuccess = () => {
     const currentUser = getCurrentUser();
     setUser(currentUser);
-    setIsAuthenticated(true);
-    setShowLoginModal(false);
+    handleCloseLogin();
   };
 
   const handleOpenLogin = () => {
+    setIsLoginClosing(false);
     setShowLoginModal(true);
   };
 
   const handleCloseLogin = () => {
-    setShowLoginModal(false);
+    if (isLoginClosing) return;
+    setIsLoginClosing(true);
+    setTimeout(() => {
+      setShowLoginModal(false);
+      setIsLoginClosing(false);
+    }, 200);
   };
 
   if (isLoading) {
@@ -73,8 +75,8 @@ function App() {
         onLoginRequest={handleOpenLogin}
       />
       {showLoginModal && (
-        <div className="login-modal-overlay" onClick={handleCloseLogin}>
-          <div className="login-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className={`login-modal-overlay ${isLoginClosing ? 'closing' : ''}`} onClick={handleCloseLogin}>
+          <div className={`login-modal-content ${isLoginClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
             <button className="login-modal-close" onClick={handleCloseLogin}>✕</button>
             <Login onLoginSuccess={handleLoginSuccess} />
           </div>

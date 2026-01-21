@@ -62,6 +62,15 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
   const [businessHours, setBusinessHours] = useState<BusinessHours>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [isClosing, setIsClosing] = useState(false);
+
+  const closeWithAnimation = () => {
+    if (isClosing) return;
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -134,7 +143,7 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
 
       if (result) {
         onSuccess();
-        onClose();
+        closeWithAnimation();
       } else {
         setError('장소 추가에 실패했습니다.');
       }
@@ -153,11 +162,11 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
   };
 
   return (
-    <div className="add-location-overlay" onClick={onClose}>
-      <div className="add-location-popup" onClick={(e) => e.stopPropagation()}>
+    <div className={`add-location-overlay ${isClosing ? 'closing' : ''}`} onClick={closeWithAnimation}>
+      <div className={`add-location-popup ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="popup-header">
           <h2>📍 새 장소 추가</h2>
-          <button className="popup-close" onClick={onClose}>✕</button>
+          <button className="popup-close" onClick={closeWithAnimation}>✕</button>
         </div>
 
         <div className="popup-coordinates">
@@ -300,7 +309,7 @@ export default function AddLocationPopup({ latitude, longitude, onClose, onSucce
             <button
               type="button"
               className="btn-cancel"
-              onClick={onClose}
+              onClick={closeWithAnimation}
               disabled={isSubmitting}
             >
               취소

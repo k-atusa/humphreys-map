@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { SearchResult, BusinessHours } from './SearchResults';
 import './BuildingInfoPopup.css';
 
@@ -53,12 +54,22 @@ function formatBusinessHours(businessHours: BusinessHours | string | undefined) 
 }
 
 export default function BuildingInfoPopup({ building, onClose }: BuildingInfoPopupProps) {
+  const [isClosing, setIsClosing] = useState(false);
+
+  const closeWithAnimation = () => {
+    if (isClosing) return;
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
+
   return (
-    <div className="building-info-overlay" onClick={onClose}>
-      <div className="building-info-popup" onClick={(e) => e.stopPropagation()}>
+    <div className={`building-info-overlay ${isClosing ? 'closing' : ''}`} onClick={closeWithAnimation}>
+      <div className={`building-info-popup ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="popup-header">
           <h2>{building.name}</h2>
-          <button className="popup-close" onClick={onClose}>✕</button>
+          <button className="popup-close" onClick={closeWithAnimation}>✕</button>
         </div>
 
         <div className="popup-content">
@@ -111,7 +122,7 @@ export default function BuildingInfoPopup({ building, onClose }: BuildingInfoPop
         </div>
 
         <div className="popup-actions">
-          <button className="btn-primary" onClick={onClose}>
+          <button className="btn-primary" onClick={closeWithAnimation}>
             확인
           </button>
         </div>
