@@ -142,6 +142,15 @@
   color: #e53e3e;
 }
 
+.menu-item.login {
+  color: #4285f4;
+}
+
+.menu-item.login .menu-text {
+  color: #4285f4;
+  font-weight: 600;
+}
+
 .menu-icon {
   font-size: 20px;
   width: 24px;

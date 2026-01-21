@@ -6,14 +6,22 @@ interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
+  onLoginRequest?: () => void;
 }
 
-export default function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
+export default function SideMenu({ isOpen, onClose, user, onLoginRequest }: SideMenuProps) {
+  const isLoggedIn = !!user;
+
   const handleLogout = () => {
     if (confirm('로그아웃 하시겠습니까?')) {
       logout();
       window.location.reload();
     }
+  };
+
+  const handleLogin = () => {
+    onClose();
+    onLoginRequest?.();
   };
   useEffect(() => {
     if (isOpen) {
@@ -46,8 +54,17 @@ export default function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
               </svg>
             </div>
             <div className="user-info">
-              <div className="user-name">{user?.nickname || '사용자'}</div>
-              <div className="user-email">{user?.id || 'user@example.com'}</div>
+              {isLoggedIn ? (
+                <>
+                  <div className="user-name">{user?.nickname || '사용자'}</div>
+                  <div className="user-email">{user?.id || 'user@example.com'}</div>
+                </>
+              ) : (
+                <>
+                  <div className="user-name">게스트</div>
+                  <div className="user-email">로그인이 필요합니다</div>
+                </>
+              )}
             </div>
           </div>
           <button className="close-button" onClick={onClose} aria-label="닫기">
@@ -112,14 +129,23 @@ export default function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
 
           {/* 계정 관리 */}
           <div className="menu-section">
-            <div className="menu-item">
-              <span className="menu-icon">👤</span>
-              <span className="menu-text">계정 관리</span>
-            </div>
-            <div className="menu-item logout" onClick={handleLogout}>
-              <span className="menu-icon">🚪</span>
-              <span className="menu-text">로그아웃</span>
-            </div>
+            {isLoggedIn ? (
+              <>
+                <div className="menu-item">
+                  <span className="menu-icon">👤</span>
+                  <span className="menu-text">계정 관리</span>
+                </div>
+                <div className="menu-item logout" onClick={handleLogout}>
+                  <span className="menu-icon">🚪</span>
+                  <span className="menu-text">로그아웃</span>
+                </div>
+              </>
+            ) : (
+              <div className="menu-item login" onClick={handleLogin}>
+                <span className="menu-icon">🔑</span>
+                <span className="menu-text">로그인</span>
+              </div>
+            )}
           </div>
         </div>
 

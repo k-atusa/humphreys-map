@@ -16,6 +16,7 @@ import type { MapContextMenuEvent, MapLongPressEvent } from '../types/mapEvents'
 interface MapViewProps {
   mapboxToken?: string;
   user: User | null;
+  onLoginRequest?: () => void;
 }
 
 // Camp Humphreys (USAG Humphreys) 정확한 좌표 (경기도 평택시)
@@ -25,7 +26,7 @@ const INITIAL_VIEW_STATE = {
   zoom: 15
 };
 
-export default function MapView({ mapboxToken, user }: MapViewProps) {
+export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewProps) {
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -240,7 +241,7 @@ export default function MapView({ mapboxToken, user }: MapViewProps) {
 
   return (
     <div className="map-container">
-      <SideMenu isOpen={isMenuOpen} onClose={handleMenuClose} user={user} />
+      <SideMenu isOpen={isMenuOpen} onClose={handleMenuClose} user={user} onLoginRequest={onLoginRequest} />
       <SearchBar onSearch={handleSearch} onMenuClick={handleMenuToggle} />
       <CategoryFilter 
         selectedCategory={selectedCategory} 

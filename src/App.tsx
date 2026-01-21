@@ -6,9 +6,11 @@ import './App.css';
 
 function App() {
   const mapboxToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     // PWA 서비스 워커 등록 확인
@@ -41,6 +43,15 @@ function App() {
     const currentUser = getCurrentUser();
     setUser(currentUser);
     setIsAuthenticated(true);
+    setShowLoginModal(false);
+  };
+
+  const handleOpenLogin = () => {
+    setShowLoginModal(true);
+  };
+
+  const handleCloseLogin = () => {
+    setShowLoginModal(false);
   };
 
   if (isLoading) {
@@ -54,13 +65,21 @@ function App() {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
-  }
-
   return (
     <div className="app">
-      <MapView mapboxToken={mapboxToken} user={user} />
+      <MapView 
+        mapboxToken={mapboxToken} 
+        user={user} 
+        onLoginRequest={handleOpenLogin}
+      />
+      {showLoginModal && (
+        <div className="login-modal-overlay" onClick={handleCloseLogin}>
+          <div className="login-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="login-modal-close" onClick={handleCloseLogin}>✕</button>
+            <Login onLoginSuccess={handleLoginSuccess} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
