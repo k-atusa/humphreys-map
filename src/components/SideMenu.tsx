@@ -7,9 +7,10 @@ interface SideMenuProps {
   onClose: () => void;
   user: User | null;
   onLoginRequest?: () => void;
+  onDirectionsClick?: () => void;
 }
 
-export default function SideMenu({ isOpen, onClose, user, onLoginRequest }: SideMenuProps) {
+export default function SideMenu({ isOpen, onClose, user, onLoginRequest, onDirectionsClick }: SideMenuProps) {
   const isLoggedIn = !!user;
 
   const handleLogout = () => {
@@ -93,6 +94,10 @@ export default function SideMenu({ isOpen, onClose, user, onLoginRequest }: Side
 
           {/* 메뉴 항목 */}
           <div className="menu-section">
+            <div className="menu-item" onClick={() => { onClose(); onDirectionsClick?.(); }}>
+              <span className="menu-icon">🧭</span>
+              <span className="menu-text">길안내</span>
+            </div>
             <div className="menu-item">
               <span className="menu-icon">⭐</span>
               <span className="menu-text">즐겨찾는 장소</span>

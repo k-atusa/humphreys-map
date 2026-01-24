@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { connectToMongoDB } from './config/mongodb';
 import buildingRoutes from './routes/buildings';
 import authRoutes from './routes/auth';
+import routingRoutes from './routes/routing';
 
 // 환경 변수 로드
 dotenv.config();
@@ -24,6 +25,7 @@ app.get('/health', (req: Request, res: Response) => {
 // API 라우트
 app.use('/api/auth', authRoutes);
 app.use('/api/buildings', buildingRoutes);
+app.use('/api/routing', routingRoutes);
 
 // 404 핸들러
 app.use((req: Request, res: Response) => {

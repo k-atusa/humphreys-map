@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import Map, { Marker, NavigationControl, GeolocateControl, MapRef } from 'react-map-gl';
+import Map, { Marker, NavigationControl, GeolocateControl, MapRef, Source, Layer } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapView.css';
 import SearchBar, { SearchResultItem } from './SearchBar';
@@ -8,10 +8,12 @@ import SearchResults, { SearchResult } from './SearchResults';
 import AddLocationPopup from './AddLocationPopup';
 import BuildingInfoPopup from './BuildingInfoPopup';
 import CategoryFilter from './CategoryFilter';
+import DirectionsPanel from './DirectionsPanel';
 import { searchPlaces } from '../services/searchService';
 import { getAllBuildings, getBuildingsByCategory } from '../services/apiService';
 import type { User } from '../services/authService';
 import type { MapContextMenuEvent, MapLongPressEvent } from '../types/mapEvents';
+import type { RouteCoordinate, RouteResult } from '../services/routingService';
 
 interface MapViewProps {
   mapboxToken?: string;
@@ -37,6 +39,14 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
   const [showBuildingInfo, setShowBuildingInfo] = useState(false);
   const [showAddLocation, setShowAddLocation] = useState(false);
   const [addLocationCoords, setAddLocationCoords] = useState<{ lat: number; lng: number } | null>(null);
+  
+  // 길안내 관련 상태
+  const [showDirections, setShowDirections] = useState(false);
+  const [directionsOrigin, setDirectionsOrigin] = useState<RouteCoordinate | null>(null);
+  const [directionsDestination, setDirectionsDestination] = useState<RouteCoordinate | null>(null);
+  const [currentRoute, setCurrentRoute] = useState<RouteResult | null>(null);
+  const [isSelectingLocation, setIsSelectingLocation] = useState<'origin' | 'destination' | null>(null);
+  
   const mapRef = useRef<MapRef>(null);
   const longPressTimer = useRef<number | null>(null);
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
@@ -44,6 +54,13 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
 
   // 지도에 표시할 마커 (검색 결과 + 카테고리 결과)
   const displayMarkers = categoryResults.length > 0 ? categoryResults : searchResults;
+
+  // 경로 GeoJSON 데이터
+  const routeGeoJSON: GeoJSON.Feature<GeoJSON.LineString> | null = currentRoute?.geometry ? {
+    type: 'Feature',
+    properties: {},
+    geometry: currentRoute.geometry
+  } : null;
 
   const handleSearch = async (query: string) => {
     console.log('검색어:', query);
@@ -211,6 +228,77 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
     }
   };
 
+  // 길안내 관련 핸들러
+  const handleToggleDirections = () => {
+    setShowDirections(!showDirections);
+    if (showDirections) {
+      // 닫을 때 초기화
+      setDirectionsOrigin(null);
+      setDirectionsDestination(null);
+      setCurrentRoute(null);
+      setIsSelectingLocation(null);
+    }
+  };
+
+  const handleSetOrigin = () => {
+    setIsSelectingLocation('origin');
+  };
+
+  const handleSetDestination = () => {
+    setIsSelectingLocation('destination');
+  };
+
+  const handleSwapLocations = () => {
+    const temp = directionsOrigin;
+    setDirectionsOrigin(directionsDestination);
+    setDirectionsDestination(temp);
+  };
+
+  const handleClearRoute = () => {
+    setDirectionsOrigin(null);
+    setDirectionsDestination(null);
+    setCurrentRoute(null);
+    setIsSelectingLocation(null);
+  };
+
+  const handleMapClick = (e: any) => {
+    if (isSelectingLocation && e.lngLat) {
+      const coord: RouteCoordinate = {
+        latitude: e.lngLat.lat,
+        longitude: e.lngLat.lng,
+        name: `${e.lngLat.lat.toFixed(5)}, ${e.lngLat.lng.toFixed(5)}`
+      };
+
+      if (isSelectingLocation === 'origin') {
+        setDirectionsOrigin(coord);
+      } else {
+        setDirectionsDestination(coord);
+      }
+      setIsSelectingLocation(null);
+    }
+  };
+
+  // 건물을 출발지/도착지로 설정
+  const handleSetBuildingAsOrigin = (building: SearchResult) => {
+    setDirectionsOrigin({
+      latitude: building.latitude,
+      longitude: building.longitude,
+      name: building.name
+    });
+    setShowDirections(true);
+    setShowBuildingInfo(false);
+  };
+
+  const handleSetBuildingAsDestination = (building: SearchResult) => {
+    setDirectionsDestination({
+      latitude: building.latitude,
+      longitude: building.longitude,
+      name: building.name
+    });
+    setShowDirections(true);
+    setShowBuildingInfo(false);
+  };
+
 
 
   // OpenStreetMap 타일 사용 (Mapbox 토큰 없이도 작동)
@@ -240,7 +328,13 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
 
   return (
     <div className="map-container">
-      <SideMenu isOpen={isMenuOpen} onClose={handleMenuClose} user={user} onLoginRequest={onLoginRequest} />
+      <SideMenu 
+        isOpen={isMenuOpen} 
+        onClose={handleMenuClose} 
+        user={user} 
+        onLoginRequest={onLoginRequest}
+        onDirectionsClick={handleToggleDirections}
+      />
       <SearchBar 
         onSearch={handleSearch} 
         onMenuClick={handleMenuToggle}
@@ -251,10 +345,22 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
         selectedCategory={selectedCategory} 
         onSelectCategory={handleCategorySelect} 
       />
+      
+      {/* 위치 선택 모드 안내 */}
+      {isSelectingLocation && (
+        <div className="location-select-hint">
+          <span>
+            {isSelectingLocation === 'origin' ? '🔵 출발지' : '🔴 도착지'}를 지도에서 선택하세요
+          </span>
+          <button onClick={() => setIsSelectingLocation(null)}>취소</button>
+        </div>
+      )}
+      
       <Map
         ref={mapRef}
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
+        onClick={handleMapClick}
         onContextMenu={handleContextMenu}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -262,7 +368,7 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
         onTouchCancel={handleTouchEnd}
         mapStyle={mapStyle as any}
         mapboxAccessToken={mapboxToken}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: '100%', height: '100%', cursor: isSelectingLocation ? 'crosshair' : 'grab' }}
         trackResize={true}
         attributionControl={true}
       >
@@ -272,6 +378,56 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
           trackUserLocation
           showUserHeading
         />
+        
+        {/* 경로 표시 레이어 */}
+        {routeGeoJSON && (
+          <Source id="route" type="geojson" data={routeGeoJSON}>
+            <Layer
+              id="route-line-bg"
+              type="line"
+              paint={{
+                'line-color': '#1a73e8',
+                'line-width': 8,
+                'line-opacity': 0.4
+              }}
+            />
+            <Layer
+              id="route-line"
+              type="line"
+              paint={{
+                'line-color': '#1a73e8',
+                'line-width': 4,
+                'line-opacity': 1
+              }}
+            />
+          </Source>
+        )}
+        
+        {/* 출발지 마커 */}
+        {directionsOrigin && (
+          <Marker
+            longitude={directionsOrigin.longitude}
+            latitude={directionsOrigin.latitude}
+            anchor="bottom"
+          >
+            <div className="directions-marker origin-marker" title="출발지">
+              🔵
+            </div>
+          </Marker>
+        )}
+        
+        {/* 도착지 마커 */}
+        {directionsDestination && (
+          <Marker
+            longitude={directionsDestination.longitude}
+            latitude={directionsDestination.latitude}
+            anchor="bottom"
+          >
+            <div className="directions-marker destination-marker" title="도착지">
+              🔴
+            </div>
+          </Marker>
+        )}
         
         {/* 검색 결과 마커 */}
         {displayMarkers.map((result, index) => {
@@ -284,6 +440,23 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
               anchor="bottom"
               onClick={(e) => {
                 e.originalEvent.stopPropagation();
+                
+                // 위치 선택 모드일 때
+                if (isSelectingLocation) {
+                  const coord: RouteCoordinate = {
+                    latitude: result.latitude,
+                    longitude: result.longitude,
+                    name: result.name
+                  };
+                  if (isSelectingLocation === 'origin') {
+                    setDirectionsOrigin(coord);
+                  } else {
+                    setDirectionsDestination(coord);
+                  }
+                  setIsSelectingLocation(null);
+                  return;
+                }
+                
                 setSelectedMarker(result);
                 setShowBuildingInfo(true);
                 
@@ -307,10 +480,25 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
         })}
       </Map>
 
+      {/* 길안내 패널 */}
+      <DirectionsPanel
+        isOpen={showDirections}
+        onClose={handleToggleDirections}
+        origin={directionsOrigin}
+        destination={directionsDestination}
+        onRouteCalculated={setCurrentRoute}
+        onSetOrigin={handleSetOrigin}
+        onSetDestination={handleSetDestination}
+        onSwapLocations={handleSwapLocations}
+        onClearRoute={handleClearRoute}
+      />
+
       {showBuildingInfo && selectedMarker && (
         <BuildingInfoPopup
           building={selectedMarker}
           onClose={() => setShowBuildingInfo(false)}
+          onSetAsOrigin={() => handleSetBuildingAsOrigin(selectedMarker)}
+          onSetAsDestination={() => handleSetBuildingAsDestination(selectedMarker)}
         />
       )}
 

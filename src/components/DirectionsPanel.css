@@ -1,0 +1,440 @@
+.directions-panel {
+  position: absolute;
+  top: 80px;
+  left: 20px;
+  width: 340px;
+  max-height: calc(100vh - 120px);
+  background: #2a2a2a;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideInLeft 0.25s ease-out;
+}
+
+.directions-panel.closing {
+  animation: slideOutLeft 0.2s ease-in forwards;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+.directions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.directions-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.directions-header .close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.directions-header .close-btn:hover {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+/* 교통수단 선택 */
+.transport-modes {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.mode-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px;
+  background: #3a3a3a;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mode-btn:hover {
+  background: #444;
+}
+
+.mode-btn.active {
+  background: #4a7c59;
+  border-color: #5a9c69;
+}
+
+.mode-icon {
+  font-size: 20px;
+}
+
+.mode-name {
+  font-size: 11px;
+  color: #bbb;
+}
+
+.mode-btn.active .mode-name {
+  color: #fff;
+}
+
+/* 출발지/도착지 입력 */
+.location-inputs {
+  padding: 16px 20px;
+  position: relative;
+}
+
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.location-row:last-child {
+  margin-bottom: 0;
+}
+
+.location-marker {
+  width: 40px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.location-marker.origin {
+  background: #4a90d9;
+  color: #fff;
+}
+
+.location-marker.destination {
+  background: #d9534f;
+  color: #fff;
+}
+
+.location-input {
+  flex: 1;
+  padding: 12px 14px;
+  background: #3a3a3a;
+  border: 1px solid #4a4a4a;
+  border-radius: 8px;
+  color: #888;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.location-input:hover {
+  border-color: #5a5a5a;
+  background: #404040;
+}
+
+.location-input.filled {
+  color: #fff;
+}
+
+.swap-btn {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  background: #3a3a3a;
+  border: 1px solid #4a4a4a;
+  border-radius: 50%;
+  color: #888;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  z-index: 1;
+}
+
+.swap-btn:hover {
+  background: #4a4a4a;
+  color: #fff;
+}
+
+/* 로딩 상태 */
+.directions-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  color: #888;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #3a3a3a;
+  border-top-color: #4a90d9;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 에러 메시지 */
+.directions-error {
+  padding: 12px 20px;
+  background: rgba(217, 83, 79, 0.1);
+  color: #ff6b6b;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* 경로 결과 */
+.route-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 16px;
+}
+
+.route-summary {
+  padding: 16px 0;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.route-info {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.route-duration {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.route-distance {
+  font-size: 14px;
+  color: #888;
+}
+
+.route-alternatives {
+  display: flex;
+  gap: 8px;
+}
+
+.alt-route-btn {
+  padding: 6px 12px;
+  background: #3a3a3a;
+  border: 1px solid #4a4a4a;
+  border-radius: 16px;
+  color: #888;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.alt-route-btn:hover {
+  background: #444;
+}
+
+.alt-route-btn.active {
+  background: #4a7c59;
+  border-color: #5a9c69;
+  color: #fff;
+}
+
+/* 상세 안내 토글 */
+.toggle-steps-btn {
+  width: 100%;
+  padding: 12px;
+  background: #3a3a3a;
+  border: none;
+  border-radius: 8px;
+  color: #aaa;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.15s ease;
+}
+
+.toggle-steps-btn:hover {
+  background: #444;
+  color: #fff;
+}
+
+/* 단계별 안내 */
+.route-steps {
+  margin-top: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.step-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #333;
+}
+
+.step-item:last-child {
+  border-bottom: none;
+}
+
+.step-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #3a3a3a;
+  border-radius: 50%;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.step-instruction {
+  color: #ddd;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.step-distance {
+  color: #666;
+  font-size: 12px;
+}
+
+/* 경로 초기화 버튼 */
+.clear-route-btn {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid #4a4a4a;
+  border-radius: 8px;
+  color: #888;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.15s ease;
+}
+
+.clear-route-btn:hover {
+  border-color: #d9534f;
+  color: #ff6b6b;
+}
+
+/* 스크롤바 스타일 */
+.route-results::-webkit-scrollbar,
+.route-steps::-webkit-scrollbar {
+  width: 6px;
+}
+
+.route-results::-webkit-scrollbar-track,
+.route-steps::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.route-results::-webkit-scrollbar-thumb,
+.route-steps::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 3px;
+}
+
+.route-results::-webkit-scrollbar-thumb:hover,
+.route-steps::-webkit-scrollbar-thumb:hover {
+  background: #5a5a5a;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .directions-panel {
+    width: calc(100% - 40px);
+    max-height: 50vh;
+    top: auto;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    animation: slideInUp 0.25s ease-out;
+  }
+
+  .directions-panel.closing {
+    animation: slideOutDown 0.2s ease-in forwards;
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideOutDown {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+}

@@ -5,6 +5,8 @@ import './BuildingInfoPopup.css';
 interface BuildingInfoPopupProps {
   building: SearchResult;
   onClose: () => void;
+  onSetAsOrigin?: () => void;
+  onSetAsDestination?: () => void;
 }
 
 const WEEKDAY_LABELS: Record<string, string> = {
@@ -53,7 +55,7 @@ function formatBusinessHours(businessHours: BusinessHours | string | undefined) 
   );
 }
 
-export default function BuildingInfoPopup({ building, onClose }: BuildingInfoPopupProps) {
+export default function BuildingInfoPopup({ building, onClose, onSetAsOrigin, onSetAsDestination }: BuildingInfoPopupProps) {
   const [isClosing, setIsClosing] = useState(false);
 
   const closeWithAnimation = () => {
@@ -122,6 +124,14 @@ export default function BuildingInfoPopup({ building, onClose }: BuildingInfoPop
         </div>
 
         <div className="popup-actions">
+          <div className="directions-buttons">
+            <button className="btn-directions btn-origin" onClick={onSetAsOrigin}>
+              🔵 출발지로
+            </button>
+            <button className="btn-directions btn-destination" onClick={onSetAsDestination}>
+              🔴 도착지로
+            </button>
+          </div>
           <button className="btn-primary" onClick={closeWithAnimation}>
             확인
           </button>
