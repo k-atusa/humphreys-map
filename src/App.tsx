@@ -10,6 +10,18 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoginClosing, setIsLoginClosing] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev: boolean) => {
+      const newValue = !prev;
+      localStorage.setItem('darkMode', JSON.stringify(newValue));
+      return newValue;
+    });
+  };
 
   useEffect(() => {
     // PWA 서비스 워커 등록 확인
@@ -68,11 +80,13 @@ function App() {
   }
 
   return (
-    <div className="app">
+    <div className={`app ${isDarkMode ? 'dark-mode' : ''}`}>
       <MapView 
         mapboxToken={mapboxToken} 
         user={user} 
         onLoginRequest={handleOpenLogin}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={toggleDarkMode}
       />
       {showLoginModal && (
         <div className={`login-modal-overlay ${isLoginClosing ? 'closing' : ''}`} onClick={handleCloseLogin}>

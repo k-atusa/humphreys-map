@@ -396,3 +396,111 @@
 .business-hours-container::-webkit-scrollbar-thumb:hover {
   background: #999;
 }
+
+/* 다크모드 스타일 */
+.dark-mode .add-location-popup {
+  background: #2a2a2a;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .popup-header {
+  border-bottom-color: #3a3a3a;
+  background: #2a2a2a;
+}
+
+.dark-mode .popup-header h2 {
+  color: #fff;
+}
+
+.dark-mode .popup-close {
+  color: #888;
+}
+
+.dark-mode .popup-close:hover {
+  color: #fff;
+}
+
+.dark-mode .form-group label {
+  color: #e0e0e0;
+}
+
+.dark-mode .form-group input,
+.dark-mode .form-group select,
+.dark-mode .form-group textarea {
+  background: #3a3a3a;
+  border-color: #444;
+  color: #fff;
+}
+
+.dark-mode .form-group input:focus,
+.dark-mode .form-group select:focus,
+.dark-mode .form-group textarea:focus {
+  border-color: #4a7c59;
+}
+
+.dark-mode .form-group input::placeholder,
+.dark-mode .form-group textarea::placeholder {
+  color: #666;
+}
+
+.dark-mode .popup-actions {
+  border-top-color: #3a3a3a;
+  background: #2a2a2a;
+}
+
+.dark-mode .btn-secondary {
+  background: #3a3a3a;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+.dark-mode .btn-secondary:hover {
+  background: #444;
+}
+
+.dark-mode .btn-submit {
+  background: #4a7c59;
+}
+
+.dark-mode .btn-submit:hover:not(:disabled) {
+  background: #3d6a4a;
+}
+
+.dark-mode .business-hours-container {
+  border-color: #3a3a3a;
+  background: #252525;
+}
+
+.dark-mode .day-header {
+  background: #2a2a2a;
+  border-bottom-color: #3a3a3a;
+}
+
+.dark-mode .day-toggle {
+  color: #e0e0e0;
+}
+
+.dark-mode .time-slot input {
+  background: #3a3a3a;
+  border-color: #444;
+  color: #fff;
+}
+
+.dark-mode .time-slot span {
+  color: #888;
+}
+
+.dark-mode .add-location-popup::-webkit-scrollbar-track,
+.dark-mode .business-hours-container::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+.dark-mode .add-location-popup::-webkit-scrollbar-thumb,
+.dark-mode .business-hours-container::-webkit-scrollbar-thumb {
+  background: #444;
+}
+
+.dark-mode .add-location-popup::-webkit-scrollbar-thumb:hover,
+.dark-mode .business-hours-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

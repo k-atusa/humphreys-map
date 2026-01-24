@@ -217,3 +217,105 @@
     padding: 12px 16px;
   }
 }
+
+/* 다크모드 토글 스위치 */
+.dark-mode-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-switch {
+  width: 44px;
+  height: 24px;
+  background: #ccc;
+  border-radius: 12px;
+  padding: 2px;
+  margin-left: auto;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-switch.active {
+  background: #4a7c59;
+}
+
+.toggle-knob {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch.active .toggle-knob {
+  transform: translateX(20px);
+}
+
+/* 다크모드 스타일 */
+.dark-mode .side-menu {
+  background: #1a1a1a;
+}
+
+.dark-mode .side-menu.open {
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .side-menu-header {
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+}
+
+.dark-mode .side-menu-content {
+  color: #e0e0e0;
+}
+
+.dark-mode .menu-section-title {
+  color: #888;
+}
+
+.dark-mode .menu-item:hover {
+  background-color: #2a2a2a;
+}
+
+.dark-mode .menu-item:active {
+  background-color: #333;
+}
+
+.dark-mode .menu-text {
+  color: #e0e0e0;
+}
+
+.dark-mode .menu-item.login .menu-text {
+  color: #60a5fa;
+}
+
+.dark-mode .menu-action {
+  border-color: #444;
+  color: #888;
+}
+
+.dark-mode .menu-action:hover {
+  background-color: #2a2a2a;
+  border-color: #555;
+}
+
+.dark-mode .menu-divider {
+  background-color: #333;
+}
+
+.dark-mode .side-menu-footer {
+  border-top-color: #333;
+  background: #151515;
+}
+
+.dark-mode .app-version {
+  color: #666;
+}
+
+.dark-mode .toggle-switch {
+  background: #444;
+}
+
+.dark-mode .toggle-switch.active {
+  background: #4a7c59;
+}

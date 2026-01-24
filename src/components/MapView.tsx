@@ -19,6 +19,8 @@ interface MapViewProps {
   mapboxToken?: string;
   user: User | null;
   onLoginRequest?: () => void;
+  isDarkMode?: boolean;
+  onToggleDarkMode?: () => void;
 }
 
 // Camp Humphreys (USAG Humphreys) 정확한 좌표 (경기도 평택시)
@@ -28,7 +30,7 @@ const INITIAL_VIEW_STATE = {
   zoom: 15
 };
 
-export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewProps) {
+export default function MapView({ mapboxToken, user, onLoginRequest, isDarkMode, onToggleDarkMode }: MapViewProps) {
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]); // 검색창 결과
@@ -327,13 +329,15 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
       };
 
   return (
-    <div className="map-container">
+    <div className={`map-container ${isDarkMode ? 'dark-mode' : ''}`}>
       <SideMenu 
         isOpen={isMenuOpen} 
         onClose={handleMenuClose} 
         user={user} 
         onLoginRequest={onLoginRequest}
         onDirectionsClick={handleToggleDirections}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={onToggleDarkMode}
       />
       <SearchBar 
         onSearch={handleSearch} 

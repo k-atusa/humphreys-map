@@ -279,3 +279,77 @@
     font-size: 12px;
   }
 }
+
+/* 다크모드 스타일 */
+.dark-mode .building-info-popup {
+  background: #2a2a2a;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .building-info-popup .popup-header {
+  border-bottom-color: #3a3a3a;
+}
+
+.dark-mode .building-info-popup .popup-header h2 {
+  color: #fff;
+}
+
+.dark-mode .building-info-popup .popup-close {
+  color: #888;
+}
+
+.dark-mode .building-info-popup .popup-close:hover {
+  background-color: #3a3a3a;
+  color: #fff;
+}
+
+.dark-mode .info-row {
+  border-bottom-color: #3a3a3a;
+}
+
+.dark-mode .info-label {
+  color: #888;
+}
+
+.dark-mode .info-value {
+  color: #e0e0e0;
+}
+
+.dark-mode .popup-actions {
+  border-top-color: #3a3a3a;
+}
+
+.dark-mode .btn-primary {
+  background-color: #4a7c59;
+}
+
+.dark-mode .btn-primary:hover {
+  background-color: #3d6a4a;
+}
+
+.dark-mode .btn-directions {
+  background: #3a3a3a;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+.dark-mode .btn-directions:hover {
+  background: #444;
+}
+
+.dark-mode .time-slot-text {
+  color: #e0e0e0;
+  background: #3a3a3a;
+}
+
+.dark-mode .day-name {
+  color: #888;
+}
+
+.dark-mode .day-name.day-sunday {
+  color: #ff6b6b;
+}
+
+.dark-mode .day-name.day-saturday {
+  color: #60a5fa;
+}

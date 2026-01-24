@@ -235,3 +235,84 @@
     font-size: 14px;
   }
 }
+
+/* 다크모드 스타일 */
+.dark-mode .search-bar {
+  background: #2a2a2a;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .search-bar.focused {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .menu-button,
+.dark-mode .voice-button {
+  color: #aaa;
+}
+
+.dark-mode .menu-button:hover,
+.dark-mode .voice-button:hover {
+  background-color: #3a3a3a;
+}
+
+.dark-mode .menu-button:active,
+.dark-mode .voice-button:active {
+  background-color: #444;
+}
+
+.dark-mode .search-icon {
+  color: #888;
+}
+
+.dark-mode .search-input {
+  color: #fff;
+}
+
+.dark-mode .search-input::placeholder {
+  color: #666;
+}
+
+.dark-mode .clear-button {
+  background: #444;
+  color: #aaa;
+}
+
+.dark-mode .clear-button:hover {
+  background-color: #555;
+}
+
+.dark-mode .search-results-dropdown {
+  background: #2a2a2a;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .search-results-count {
+  color: #888;
+  border-bottom-color: #3a3a3a;
+  background: #222;
+}
+
+.dark-mode .search-result-item {
+  border-bottom-color: #3a3a3a;
+}
+
+.dark-mode .search-result-item:hover {
+  background-color: #333;
+}
+
+.dark-mode .search-result-item:active {
+  background-color: #3a3a3a;
+}
+
+.dark-mode .result-icon {
+  background: #3a3a3a;
+}
+
+.dark-mode .result-name {
+  color: #fff;
+}
+
+.dark-mode .result-category {
+  color: #888;
+}

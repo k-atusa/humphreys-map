@@ -203,3 +203,65 @@
     font-size: 16px;
   }
 }
+
+/* 다크모드 스타일 */
+.dark-mode .search-results {
+  background: #2a2a2a;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .handle-bar {
+  background: #555;
+}
+
+.dark-mode .search-results-header {
+  border-bottom-color: #3a3a3a;
+}
+
+.dark-mode .results-title {
+  color: #fff;
+}
+
+.dark-mode .search-results .close-button {
+  color: #888;
+}
+
+.dark-mode .search-results .close-button:hover {
+  color: #fff;
+}
+
+.dark-mode .no-results {
+  color: #666;
+}
+
+.dark-mode .result-item {
+  border-bottom-color: #3a3a3a;
+}
+
+.dark-mode .result-item:hover {
+  background-color: #333;
+}
+
+.dark-mode .result-item:active {
+  background-color: #3a3a3a;
+}
+
+.dark-mode .result-icon {
+  background: #3a3a3a;
+}
+
+.dark-mode .result-name {
+  color: #fff;
+}
+
+.dark-mode .result-category {
+  color: #60a5fa;
+}
+
+.dark-mode .result-address {
+  color: #888;
+}
+
+.dark-mode .result-distance {
+  color: #666;
+}

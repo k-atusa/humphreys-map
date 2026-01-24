@@ -8,9 +8,11 @@ interface SideMenuProps {
   user: User | null;
   onLoginRequest?: () => void;
   onDirectionsClick?: () => void;
+  isDarkMode?: boolean;
+  onToggleDarkMode?: () => void;
 }
 
-export default function SideMenu({ isOpen, onClose, user, onLoginRequest, onDirectionsClick }: SideMenuProps) {
+export default function SideMenu({ isOpen, onClose, user, onLoginRequest, onDirectionsClick, isDarkMode, onToggleDarkMode }: SideMenuProps) {
   const isLoggedIn = !!user;
 
   const handleLogout = () => {
@@ -116,6 +118,13 @@ export default function SideMenu({ isOpen, onClose, user, onLoginRequest, onDire
 
           {/* 설정 */}
           <div className="menu-section">
+            <div className="menu-item dark-mode-toggle" onClick={onToggleDarkMode}>
+              <span className="menu-icon">{isDarkMode ? '🌙' : '☀️'}</span>
+              <span className="menu-text">다크 모드</span>
+              <div className={`toggle-switch ${isDarkMode ? 'active' : ''}`}>
+                <div className="toggle-knob"></div>
+              </div>
+            </div>
             <div className="menu-item">
               <span className="menu-icon">⚙️</span>
               <span className="menu-text">설정</span>

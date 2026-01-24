@@ -4,6 +4,34 @@
   position: relative;
 }
 
+/* 다크모드 - 지도에 CSS 필터 적용 */
+.map-container.dark-mode .mapboxgl-canvas {
+  filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+}
+
+/* 다크모드에서 마커는 필터 반전 (원래 색상 유지) */
+.map-container.dark-mode .mapboxgl-marker {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* 다크모드에서 컨트롤 버튼 스타일 */
+.map-container.dark-mode .mapboxgl-ctrl-group {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.map-container.dark-mode .mapboxgl-ctrl-group button {
+  background-color: #2a2a2a;
+}
+
+.map-container.dark-mode .mapboxgl-ctrl-group button:hover {
+  background-color: #3a3a3a;
+}
+
+.map-container.dark-mode .mapboxgl-ctrl-group button span {
+  filter: invert(1);
+}
+
 /* 네비게이션 컨트롤을 카테고리 필터 아래로 이동 */
 .map-container .mapboxgl-ctrl-top-right {
   top: 140px !important;
