@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import Map, { Marker, NavigationControl, GeolocateControl, MapRef } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapView.css';
-import SearchBar from './SearchBar';
+import SearchBar, { SearchResultItem } from './SearchBar';
 import SideMenu from './SideMenu';
 import SearchResults, { SearchResult } from './SearchResults';
 import AddLocationPopup from './AddLocationPopup';
@@ -29,8 +29,9 @@ const INITIAL_VIEW_STATE = {
 export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewProps) {
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [isSearchResultsOpen, setIsSearchResultsOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]); // 검색창 결과
+  const [categoryResults, setCategoryResults] = useState<SearchResult[]>([]); // 카테고리 결과
+  const [isCategoryResultsOpen, setIsCategoryResultsOpen] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<SearchResult | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showBuildingInfo, setShowBuildingInfo] = useState(false);
@@ -41,12 +42,14 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const isAdmin = user?.id === 'admin';
 
+  // 지도에 표시할 마커 (검색 결과 + 카테고리 결과)
+  const displayMarkers = categoryResults.length > 0 ? categoryResults : searchResults;
+
   const handleSearch = async (query: string) => {
     console.log('검색어:', query);
     
     if (!query.trim()) {
       setSearchResults([]);
-      setIsSearchResultsOpen(false);
       return;
     }
 
@@ -56,11 +59,9 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
       // 실제 API 호출
       const results = await searchPlaces(query);
       setSearchResults(results);
-      setIsSearchResultsOpen(true);
     } catch (error) {
       console.error('검색 오류:', error);
       setSearchResults([]);
-      setIsSearchResultsOpen(true);
     } finally {
       // no-op for now
     }
@@ -74,13 +75,13 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
     setIsMenuOpen(false);
   };
 
-  const handleSearchResultsClose = () => {
-    setIsSearchResultsOpen(false);
-  };
-
-  const handleSelectResult = (result: SearchResult) => {
-    setSelectedMarker(result);
+  const handleSelectResult = (result: SearchResult | SearchResultItem) => {
+    // SearchResultItem을 SearchResult로 변환 (필요한 경우)
+    const allResults = [...searchResults, ...categoryResults];
+    const fullResult = allResults.find(r => r.id === result.id) || result as SearchResult;
+    setSelectedMarker(fullResult);
     setShowBuildingInfo(true);
+    setIsCategoryResultsOpen(false); // 팝업 닫기
     
     // 부드러운 이동 애니메이션
     mapRef.current?.flyTo({
@@ -89,8 +90,6 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
       duration: 1500, // 1.5초
       essential: true
     });
-    
-    setIsSearchResultsOpen(false);
   };
 
   // 마우스 오른쪽 클릭 핸들러 (관리자용)
@@ -156,9 +155,9 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
   };
 
   const handleAddLocationSuccess = async () => {
-    // 선택된 카테고리가 있으면 해당 카테고리의 결과를 다시 조회 (팝업 없이)
+    // 선택된 카테고리가 있으면 해당 카테고리의 결과를 다시 조회
     if (selectedCategory) {
-      await handleCategorySelect(selectedCategory, false);
+      await handleCategorySelect(selectedCategory);
     } else if (searchResults.length > 0) {
       // 검색 결과가 있으면 검색 결과 새로고침
       const lastQuery = searchResults[0]?.name || '';
@@ -169,13 +168,13 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
     }
   };
 
-  const handleCategorySelect = async (category: string | null | undefined, showPopup: boolean = true) => {
+  const handleCategorySelect = async (category: string | null | undefined) => {
     // undefined는 선택 해제 시그널
     if (category === undefined) {
       setSelectedCategory(null);
       setSelectedMarker(null);
-      setSearchResults([]);
-      setIsSearchResultsOpen(false);
+      setCategoryResults([]);
+      setIsCategoryResultsOpen(false);
       return;
     }
 
@@ -205,8 +204,8 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
         longitude: building.longitude
       }));
       
-      setSearchResults(results);
-      setIsSearchResultsOpen(showPopup);
+      setCategoryResults(results);
+      setIsCategoryResultsOpen(true); // 팝업 열기
     } catch (error) {
       console.error('Category filter error:', error);
     }
@@ -242,7 +241,12 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
   return (
     <div className="map-container">
       <SideMenu isOpen={isMenuOpen} onClose={handleMenuClose} user={user} onLoginRequest={onLoginRequest} />
-      <SearchBar onSearch={handleSearch} onMenuClick={handleMenuToggle} />
+      <SearchBar 
+        onSearch={handleSearch} 
+        onMenuClick={handleMenuToggle}
+        searchResults={searchResults}
+        onSelectResult={handleSelectResult}
+      />
       <CategoryFilter 
         selectedCategory={selectedCategory} 
         onSelectCategory={handleCategorySelect} 
@@ -270,7 +274,7 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
         />
         
         {/* 검색 결과 마커 */}
-        {searchResults.map((result, index) => {
+        {displayMarkers.map((result, index) => {
           const isSelected = selectedMarker?.id === result.id;
           return (
             <Marker
@@ -318,11 +322,12 @@ export default function MapView({ mapboxToken, user, onLoginRequest }: MapViewPr
           onSuccess={handleAddLocationSuccess}
         />
       )}
-      
+
+      {/* 카테고리 선택 시 검색 결과 팝업 */}
       <SearchResults
-        results={searchResults}
-        isOpen={isSearchResultsOpen}
-        onClose={handleSearchResultsClose}
+        results={categoryResults}
+        isOpen={isCategoryResultsOpen}
+        onClose={() => setIsCategoryResultsOpen(false)}
         onSelectResult={handleSelectResult}
       />
     </div>

@@ -1,29 +1,91 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './SearchBar.css';
+
+export interface SearchResultItem {
+  id: string;
+  buildingNumber?: string;
+  name: string;
+  address: string;
+  category: string;
+  latitude: number;
+  longitude: number;
+}
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
   onMenuClick: () => void;
+  searchResults?: SearchResultItem[];
+  onSelectResult?: (result: SearchResultItem) => void;
 }
 
-export default function SearchBar({ onSearch, onMenuClick }: SearchBarProps) {
+export default function SearchBar({ onSearch, onMenuClick, searchResults = [], onSelectResult }: SearchBarProps) {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const debounceTimer = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // 입력할 때마다 디바운스로 검색 실행
+  useEffect(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = window.setTimeout(() => {
+      onSearch(query);
+    }, 200); // 200ms 디바운스
+
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [query, onSearch]);
+
+  // 외부 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsDropdownVisible(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // 검색 결과가 도착하면 드롭다운 표시
+  useEffect(() => {
+    if (query.trim().length > 0 && searchResults.length > 0) {
+      setIsDropdownVisible(true);
+    }
+  }, [searchResults]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) {
-      onSearch(query);
+    // 즉시 검색 실행
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
     }
+    onSearch(query);
   };
 
   const handleClear = () => {
     setQuery('');
+    setIsDropdownVisible(false);
+    onSearch(''); // 검색 결과도 초기화
   };
 
+  const handleResultClick = (result: SearchResultItem) => {
+    setIsDropdownVisible(false);
+    onSelectResult?.(result);
+  };
+
+  // 실제 표시 여부
+  const showResults = isDropdownVisible && query.trim().length > 0 && searchResults.length > 0;
+
   return (
-    <div className="search-bar-container">
-      <form className={`search-bar ${isFocused ? 'focused' : ''}`} onSubmit={handleSubmit}>
+    <div className="search-bar-container" ref={containerRef}>
+      <form className={`search-bar ${isFocused ? 'focused' : ''} ${showResults ? 'has-results' : ''}`} onSubmit={handleSubmit}>
         <button type="button" className="menu-button" aria-label="메뉴" onClick={onMenuClick}>
           ☰
         </button>
@@ -35,7 +97,12 @@ export default function SearchBar({ onSearch, onMenuClick }: SearchBarProps) {
             placeholder="장소, 건물명 검색"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onFocus={() => setIsFocused(true)}
+            onFocus={() => {
+              setIsFocused(true);
+              if (query.trim() && searchResults.length > 0) {
+                setIsDropdownVisible(true);
+              }
+            }}
             onBlur={() => setIsFocused(false)}
           />
           {query && (
@@ -67,6 +134,35 @@ export default function SearchBar({ onSearch, onMenuClick }: SearchBarProps) {
           </svg>
         </button>
       </form>
+
+      {/* 검색 결과 드롭다운 */}
+      {showResults && (
+        <div className="search-results-dropdown">
+          <div className="search-results-count">
+            검색 결과 {searchResults.length}건
+          </div>
+          <ul className="search-results-list">
+            {searchResults.map((result) => (
+              <li 
+                key={result.id} 
+                className="search-result-item"
+                onMouseDown={() => handleResultClick(result)}
+              >
+                <div className="result-icon">📍</div>
+                <div className="result-info">
+                  <div className="result-name">
+                    {result.buildingNumber && (
+                      <span className="result-building-number">{result.buildingNumber}</span>
+                    )}
+                    {result.name}
+                  </div>
+                  <div className="result-category">{result.category}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
