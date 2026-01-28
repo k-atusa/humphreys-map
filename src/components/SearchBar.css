@@ -6,6 +6,9 @@
   z-index: 1000;
   padding: 12px 16px;
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .search-bar {
@@ -13,15 +16,18 @@
   align-items: center;
   gap: 8px;
   background: white;
-  border-radius: 12px;
-  padding: 8px 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 28px;
+  padding: 12px 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   transition: box-shadow 0.2s ease;
   pointer-events: auto;
-}
+  min-width: var(--search-width);
+  height: 48px;
+  box-sizing: border-box;
+} 
 
 .search-bar.focused {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .menu-button,
@@ -239,11 +245,11 @@
 /* 다크모드 스타일 */
 .dark-mode .search-bar {
   background: #2a2a2a;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .dark-mode .search-bar.focused {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .dark-mode .menu-button,
@@ -284,7 +290,7 @@
 
 .dark-mode .search-results-dropdown {
   background: #2a2a2a;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .dark-mode .search-results-count {

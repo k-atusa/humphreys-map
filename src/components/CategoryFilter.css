@@ -1,12 +1,14 @@
 .category-filter {
   position: absolute;
-  top: 60px;
-  left: 0;
-  right: 0;
+  top: 12px;
+  left: calc(var(--search-width) + 24px); /* gap between search input and categories */
+  right: 16px;
   z-index: 900;
-  padding: 12px 16px 16px 16px;
+  padding: 0;
   pointer-events: none;
-  min-height: 60px;
+  display: flex;
+  align-items: center;
+  height: 48px;
 }
 
 .category-scroll {
@@ -17,7 +19,10 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   pointer-events: auto;
-  padding: 4px 0 4px 0;
+  padding: 0;
+  align-items: center;
+  flex: 1;
+  height: 48px;
 }
 
 .category-scroll::-webkit-scrollbar {
@@ -27,35 +32,36 @@
 .category-pill {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 10px 16px;
+  padding: 0 18px;
   background: white;
-  border: 1.5px solid #e0e0e0;
+  border: none;
   border-radius: 24px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: #333;
   white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  height: 40px;
 }
 
 .category-pill:hover {
-  background: #f8f8f8;
-  border-color: #d0d0d0;
-  transform: translateY(-1px);
+  background: #f0f0f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .category-pill.active {
-  background: #007AFF;
-  border-color: #007AFF;
+  background: #4a7c59;
   color: white;
+  box-shadow: 0 2px 8px rgba(74, 124, 89, 0.3);
 }
 
 .category-pill.active:hover {
-  background: #0051D5;
-  border-color: #0051D5;
+  background: #3d6549;
 }
 
 .category-icon {
@@ -71,12 +77,14 @@
 /* 모바일 대응 */
 @media (max-width: 768px) {
   .category-filter {
-    padding: 8px 12px;
+    left: auto;
+    right: 16px;
+    max-width: calc(100% - 32px);
   }
 
   .category-pill {
-    padding: 8px 14px;
-    font-size: 13px;
+    padding: 8px 12px;
+    font-size: 12px;
   }
 
   .category-icon {
@@ -84,29 +92,29 @@
   }
 
   .category-label {
-    font-size: 13px;
+    font-size: 12px;
   }
 }
 
 /* 다크모드 스타일 */
 .dark-mode .category-pill {
   background: #2a2a2a;
-  border-color: #444;
   color: #e0e0e0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .dark-mode .category-pill:hover {
   background: #333;
-  border-color: #555;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .dark-mode .category-pill.active {
   background: #4a7c59;
-  border-color: #4a7c59;
   color: white;
+  box-shadow: 0 2px 8px rgba(74, 124, 89, 0.5);
 }
 
 .dark-mode .category-pill.active:hover {
-  background: #3d6a4a;
+  background: #3d6549;
   border-color: #3d6a4a;
 }
