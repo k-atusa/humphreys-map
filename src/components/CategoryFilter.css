@@ -77,14 +77,20 @@
 /* 모바일 대응 */
 @media (max-width: 768px) {
   .category-filter {
-    left: auto;
+    top: 64px;
+    left: 16px;
     right: 16px;
-    max-width: calc(100% - 32px);
+    height: 44px;
+  }
+
+  .category-scroll {
+    height: 44px;
   }
 
   .category-pill {
-    padding: 8px 12px;
+    padding: 0 14px;
     font-size: 12px;
+    height: 36px;
   }
 
   .category-icon {
